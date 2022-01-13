@@ -721,7 +721,8 @@ if ( kolist != "" ||  kolist != null ){
   process kofamscan{
 
    label 'kofamscan'
-
+   
+     
    input:
    file seq from seq_file_koala
 
@@ -729,7 +730,7 @@ if ( kolist != "" ||  kolist != null ){
    file "koala_${seq}" into koalaResults
 
    """
-    exec_annotation --cpu ${task.cpus} -p ${koprofiles} -k ${kolist} -o koala_${seq} $seq
+   exec_annotation --cpu ${task.cpus} -p ${koprofiles} -k ${kolist} -o koala_${seq} $seq
    """
 
   }

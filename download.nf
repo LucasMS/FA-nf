@@ -26,6 +26,7 @@
 // default parameters
 params.help = false
 
+
 // Main result and log dirs
 params.dbPath = "/nfs/db"
 
@@ -143,7 +144,7 @@ process downloadInterPro {
   file "*" into interpro_data
 
   """
-  curl --retry 3 -o iprscan.tar.gz ${params.iprscanURL};
+  curl --retry 999 -o iprscan.tar.gz ${params.iprscanURL};
   tar zxf iprscan.tar.gz
   rm iprscan.tar.gz
   cd interproscan-${params.iprscanVersion}
@@ -168,9 +169,9 @@ process downloadKO {
   file "ko_store" into ko_store
 
   """
-  curl --retry 3 -o ko_list.gz ${params.koURLlist};
+  curl --retry 999 -o ko_list.gz ${params.koURLlist};
   gunzip ko_list.gz;
-  curl --retry 3 -o profiles.tar.gz ${params.koURLprofiles};
+  curl --retry 999 -o profiles.tar.gz ${params.koURLprofiles};
   tar zxf profiles.tar.gz; rm profiles.tar.gz;
   mkdir ko_store
   bulkDownloadKEGG.pl ko_list ko_store
