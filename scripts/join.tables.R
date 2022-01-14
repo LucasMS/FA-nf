@@ -3,7 +3,7 @@
 # Libraries
 
 library(tidyverse)
-r# Set output directory
+# Set output directory
 dir_out <- getwd()
 
 # Download NCBI names file file
