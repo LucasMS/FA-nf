@@ -51,9 +51,13 @@ params.blastDbFolder = "${params.dbPath}/ncbi/${datePart}/blastdb/db"
 params.dbipscanPath = "${params.dbPath}/iprscan/${params.iprscanVersion}"
 params.dbKOPath = "${params.dbPath}/kegg/${params.koVersion}"
 params.oboFolder = "${params.dbPath}/geneontology/${datePart}"
-
+params.kegg_taxidFolder = "${params.dbPath}/kegg_taxid"
 // Mail for sending reports
 params.email = ""
+
+// Location of pipeline info
+
+params.local_installation = "./"
 
 //print usage
 if ( params.help ) {
@@ -81,6 +85,22 @@ if ( params.blastDBList == null || params.blastDBList == "" ) {
 }
 
 blastDBChannel = Channel.fromList( params.blastDBList?.tokenize(',') )
+
+
+process combine_kegg_taxid {
+
+  publishDir params.kegg_taxidFolder, mode: 'copy'
+  label 'kegg_taxid'
+
+  output:
+  file "list.genomes.txt" into kegg_taxidFile
+
+  
+   """
+   Rscript ${params.local_installation}/scripts/join.tables.R
+   """
+
+}
 
 
 process oboFile {
