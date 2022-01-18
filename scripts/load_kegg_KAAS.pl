@@ -6,7 +6,7 @@ load_kegg_data.pl
 
 =head1 SYNOPSIS
 
- perl load_kegg_KAAS.pl [--input] [-u update] [-h help]
+ perl load_kegg_KAAS.pl [--input] [-u update] [--genome_tax] [-h help]
 
 =head1 DESCRIPTION
 
@@ -22,6 +22,7 @@ Required arguments:
 
  --input=<string>              File produced by KAAS with associations bewteen Prot IDs & KEGG orthologs [Mandatory]
  --rel                         KEGG release [Mandatory]
+ --genome_tax		       File containing KEGG genome codes with taxonomy information.	
 
 The following options are accepted:
 
@@ -32,6 +33,7 @@ Important: Please specify in configuration file list of 3-letters code for KEGG 
 =head1 AUTHORS
 
 Vlasova Anna: vlasova dot av A gmail dot com
+Modifications to use KEGG genome list to taxonomy id information from local file, produced at the download nexflow pipelie by LUCASMS at github. 2022.01
 
 =cut
 
@@ -51,11 +53,13 @@ use LWP::Simple;
 use Config::Simple;
 use String::Util 'trim';
 use Array::Split qw( split_by split_into );
+#use File::Slurp;
+
 my $confFile = 'main_configuration.ini';
 
 
-my $USAGE = "perl load_kegg_KAAS.pl [-i input]  [-rel Kegg release] [-h help] [-conf configuration file] \n";
-my ($do_update, $show_help, $input, $directory, $entries, $kegg_release);
+my $USAGE = "perl load_kegg_KAAS.pl [-i input]  [-rel Kegg release] [-t genome_tax] [-h help] [-conf configuration file] \n";
+my ($do_update, $show_help, $input, $directory, $entries, $kegg_release, $genome_tax);
 
 &GetOptions(
 			'update|u=s'		=> \$do_update,
@@ -63,6 +67,7 @@ my ($do_update, $show_help, $input, $directory, $entries, $kegg_release);
 			'dir|d=s'				=> \$directory,
 			'entries|e=s'		=> \$entries,
       'rel|r=s'       => \$kegg_release,
+      'genome_tax|t=s'		=> \$genome_tax,
       'conf=s'				=>\$confFile,
 			'help|h'        => \$show_help
 	   )
@@ -74,6 +79,11 @@ $do_update = 0 if (!defined $do_update);
 if ( !$input || !$kegg_release ) {
 	die("Please specify input file with results of KAAS server or KEGG DB release used to annotated data!\n Launch 'perl load_kegg_KAAS.pl -h' to see parameters description\n")
 }
+
+if ( !$input || !$genome_tax ) {
+	die("Please specify input file with results of KAAS server or the file containing KEGG genome codes with taxonomy information!\n Launch 'perl load_kegg_KAAS.pl -h' to see parameters description\n")
+}
+
 
 # If null, let's assign 0.0
 if ( $kegg_release eq 'null' || $kegg_release eq '' ) {
@@ -971,9 +981,10 @@ sub organism_table {
     my ($codeList, $engine,$dbh)=@_;
 
     #check whether this organism is already present in the DB (without additional connction to NCBI taxonomy and KEGG rest server)
-    my $url = "http://rest.kegg.jp/list/genome";
-    my $response = get $url;
-
+    #my $url = "http://rest.kegg.jp/list/genome";
+    #my $response = get $url;
+    #my $response = read_file($genome_tax); # Uses slurp, so avoid this method
+    my $response = do{local(@ARGV,$/)=$genome_tax;<>};
     my %returnData=();
 
    #print Dumper($codeList)."\n";

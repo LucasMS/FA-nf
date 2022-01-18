@@ -72,6 +72,7 @@ params.koentries = null
 params.kegg_release = null
 params.kegg_species = "hsa, dme, cel, ath"
 params.keggFile = null
+params.genome_tax = null
 
 // Params for InterProScan
 //  Temporary location for InterproScan intermediary files. This can be huge
@@ -150,9 +151,14 @@ if ( ! params.blastDbPath ) {
 kolist = null
 koprofiles = null
 koentries = null
+genome_tax = null
 
 if ( params.kolist ) {
   kolist = params.kolist
+}
+
+if ( params.genome_tax ) {
+  genome_tax = params.genome_tax
 }
 
 if ( params.koprofiles ) {
@@ -180,6 +186,11 @@ if ( ! params.koentries ) {
     koentries = "${params.dbPath}/kegg/${params.koVersion}/ko_store"
   }
 }
+
+if ( ! params.genome_tax && ! params.keggFile ) {
+    genome_tax = "${params.dbPath}/kegg_taxid/list.genomes.txt"
+}
+
 
 //print usage
 if ( params.help ) {
@@ -1155,11 +1166,11 @@ process 'kegg_upload' {
 
   if ( ! koentries ) {
     command += " \
-     load_kegg_KAAS.pl -input $keggfile -dir down_kegg -rel $params.kegg_release -conf \$config > upload_kegg 2>err; \
+     /work_ifs/sukmb447/apps/FA-nf.ikmb/scripts/load_kegg_KAAS.pl -input $keggfile -dir down_kegg -rel $params.kegg_release -conf \$config -genome_tax $genome_tax > upload_kegg 2>err; \
     "
   } else {
     command += " \
-     load_kegg_KAAS.pl -input $keggfile -entries $koentries -rel $params.kegg_release -conf \$config > upload_kegg 2>err; \
+     /work_ifs/sukmb447/apps/FA-nf.ikmb/scripts/load_kegg_KAAS.pl -input $keggfile -entries $koentries -rel $params.kegg_release -conf \$config -genome_tax $genome_tax > upload_kegg 2>err; \
     "
   }
 
